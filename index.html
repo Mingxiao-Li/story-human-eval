@@ -118,12 +118,12 @@
 <body>
 <h1>Human Evaluation</h1>
 <p>
-  For each group below, review the four image groups (A–D) and select the one that best satisfies:
+  For each group below, review the four image groups (A–E) and select the one that best satisfies:
 </p>
 <ul>
-  <li><strong>Identity Consistency</strong></li>
-  <li><strong>Prompt Alignment</strong></li>
-  <li><strong>Image Diversity</strong></li>
+  <li><strong>Identity Consistency: Whether the subject remains consistent across different images. </strong></li>
+  <li><strong>Prompt Alignment: Whether the image aligns well with the provided text.</strong></li>
+  <li><strong>Image Quality: Whether the image is clear, detailed, and visually appealing. </strong></li>
 </ul>
 
 <div id="evaluation-area"></div>
@@ -262,7 +262,7 @@
   const totalPrompts = 120;
   const promptsPerSet = 4;
   const totalSets = Math.floor(totalPrompts / promptsPerSet);
-  const selectedSetCount = 5;
+  const selectedSetCount = 20;
   const numModels = 5;
   const allPromptIds = Array.from({ length: totalSets }, (_, i) => i * promptsPerSet);
   const selectedPromptStartIds = shuffle(allPromptIds).slice(0, selectedSetCount);
