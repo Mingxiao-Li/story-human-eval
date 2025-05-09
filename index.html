@@ -262,7 +262,7 @@
   const totalPrompts = 120;
   const promptsPerSet = 4;
   const totalSets = Math.floor(totalPrompts / promptsPerSet);
-  const selectedSetCount = 25;
+  const selectedSetCount = 5;
   const numModels = 5;
   const allPromptIds = Array.from({ length: totalSets }, (_, i) => i * promptsPerSet);
   const selectedPromptStartIds = shuffle(allPromptIds).slice(0, selectedSetCount);
