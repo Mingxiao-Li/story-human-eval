@@ -357,45 +357,50 @@
   }
 
   function submitResults() {
-    const resultBox = document.getElementById("result-box");
-    const selectedData = [];
-    document.querySelectorAll(".prompt-section").forEach((section, idx) => {
-      const groupId = idx;
-      const radios = section.querySelectorAll('input[type="radio"]');
-      let selectedOption = null;
-      radios.forEach(r => {
-        if (r.checked) selectedOption = r.value;
-      });
-      if (selectedOption !== null) {
-        const promptLabel = section.querySelector(".prompt-text").textContent;
-        const match = promptLabel.match(/prompts (\d+)–(\d+)/);
-        const promptIds = match ? Array.from({ length: 4 }, (_, i) => parseInt(match[1]) + i) : [];
-        selectedData.push({ groupId, selectedOption, promptIds });
-      }
+  const resultBox = document.getElementById("result-box");
+  const selectedData = [];
+
+  document.querySelectorAll(".prompt-section").forEach((section, idx) => {
+    const groupId = idx;
+    const radios = section.querySelectorAll('input[type="radio"]');
+    let selectedOption = null;
+    radios.forEach(r => {
+      if (r.checked) selectedOption = r.value;
     });
 
-    selectedData.forEach(entry => {
-      fetch('http://localhost:3000/proxy', {
-        method: 'POST',
-        body: JSON.stringify(entry),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        resultBox.textContent += `✅ Submitted: Group ${entry.groupId} - Option ${entry.selectedOption}\n`;
+    if (selectedOption !== null) {
+      const promptLabel = section.querySelector(".prompt-text").textContent;
+      const match = promptLabel.match(/prompts (\d+)–(\d+)/);
+      const promptIds = match ? Array.from({ length: 4 }, (_, i) => parseInt(match[1]) + i) : [];
+      selectedData.push({ groupId, selectedOption, promptIds });
+    }
+  });
 
-        // 显示成功提示
-        const successMsg = document.getElementById("successMessage");
-        successMsg.classList.add("show");
-        setTimeout(() => successMsg.classList.remove("show"), 3000);
-      })
-      .catch(error => {
-        resultBox.textContent += `❌ Error submitting group ${entry.groupId}: ${error.message}\n`;
-      });
-    });
+  if (selectedData.length === 0) {
+    resultBox.textContent += "❌ No selections made.\n";
+    return;
   }
+
+  fetch('http://localhost:3000/proxy', {
+    method: 'POST',
+    body: JSON.stringify(selectedData),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    resultBox.textContent += `✅ Submitted successfully as ${data.savedAs} for ${data.userId}\n`;
+
+    // 显示成功提示
+    const successMsg = document.getElementById("successMessage");
+    successMsg.classList.add("show");
+    setTimeout(() => successMsg.classList.remove("show"), 3000);
+  })
+  .catch(error => {
+    resultBox.textContent += `❌ Error submitting: ${error.message}\n`;
+  });
+}
 
   // 成功提示框
   const successDiv = document.createElement("div");
