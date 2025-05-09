@@ -2,26 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Human Evaluation - Model Comparison</title>
+  <title>Human Evaluation</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    .prompt-section { margin-bottom: 40px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
-    .prompt-text { font-weight: bold; margin-bottom: 10px; }
-    .model-block { margin-bottom: 10px; }
-    .model-label { font-weight: bold; margin: 5px 0; }
-    .image-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-    img { max-height: 150px; border: 2px solid #ccc; }
-    .radio-group { margin: 5px 0; }
-    h1, h2 { color: #333; }
-    button { padding: 10px 20px; font-size: 16px; }
-    pre { background: #eee; padding: 10px; white-space: pre-wrap; word-break: break-word; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .prompt-section {
+      margin-bottom: 40px;
+      padding: 16px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .option-block {
+      margin-bottom: 20px;
+    }
+    .option-label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .image-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .img-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 180px;
+    }
+    .img-wrapper div {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    img {
+      max-height: 150px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+    }
+    .radio-group {
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
 
-<h1>Human Evaluation: Model Comparison</h1>
+<h1>Human Evaluation</h1>
+
 <p>
-  For each prompt, review the 4 models’ images and select which model performed <strong>best overall</strong> based on:
+  For each group below, review the four image groups (A–D) and select the one that best satisfies:
 </p>
 <ul>
   <li><strong>Identity Consistency</strong></li>
@@ -37,114 +95,290 @@
 <pre id="result-box"></pre>
 
 <script>
-  const numPrompts = 30;
-  const numModels = 4;
-  const imagesPerModel = 3;
+  const promptDict = {
+    "0": "A watercolor illustration of A Scarlet parrot with vibrant red, yellow, and blue feathers eating fruit.",
+    "1": "A watercolor illustration of A Scarlet parrot with vibrant red, yellow, and blue feathers in a rain storm.",
+    "2": "A watercolor illustration of A Scarlet parrot with vibrant red, yellow, and blue feathers perched on a branch.",
+    "3": "A watercolor illustration of A Scarlet parrot with vibrant red, yellow, and blue feathers sitting on a rock.",
+    "4": "A 3D animation of A cute Labrador puppy with a glossy, chocolate brown coat at a lake.",
+    "5": "A 3D animation of A cute Labrador puppy with a glossy, chocolate brown coat in a pet store.",
+    "6": "3D animation of A cute Labrador puppy with a glossy, chocolate brown coat playing with a ball.",
+    "7": "A 3D animation of A cute Labrador puppy with a glossy, chocolate brown coat sleeping in a bed.",
+    "8": "A 3D animation of A black and white dog with yellow collar wearing a birthday hat.",
+    "9": "A 3D animation of A black and white dog with yellow collar in a snowy backyard.",
+    "10": "A 3D animation of A black and white dog with yellow collar biting a bone.",
+    "11": "A 3D animation of A black and white dog with yellow collar sitting by a fireplace.",
+    "12": "A watercolor illustration of A cute kitten with sleek, cream-colored fur and striking blue eyes dressed in a cute sweater.",
+    "13": "A watercolor illustration of A cute kitten with sleek, cream-colored fur and striking blue eyes running through a field.",
+    "14": "A watercolor illustration of A cute kitten with sleek, cream-colored fur and striking blue eyes sitting in a basket.",
+    "15": "A watercolor illustration of A cute kitten with sleek, cream-colored fur and striking blue eyes wearing a collar with a bell.",
+    "16": "A watercolor illustration of A puppy wearing a small sweater.",
+    "17": "A watercolor illustration of A puppy sticking head out of the car window.",
+    "18": "A watercolor illustration of A puppy swimming.",
+    "19": "A watercolor illustration of A puppy chasing a ball.",
+    "20": "A hyper-realistic digital painting of A cat climbing a tree.",
+    "21": "A hyper-realistic digital painting of A cat playing with a yarn ball.",
+    "22": "A hyper-realistic digital painting of A cat sitting on a shelf.",
+    "23": "A hyper-realistic digital painting of A cat wearing a fluffy collar.",
+    "24": "A hyper-realistic digital painting of A cat dressed in a Halloween costume.",
+    "25": "A hyper-realistic digital painting of A cat on a sled.",
+    "26": "A hyper-realistic digital painting of A cat wearing a bow tie.",
+    "27": "A hyper-realistic digital painting of A cat wearing a small bell.",
+    "28": "A 3D animation of A happy hedgehog dressed in a miniature jacket.",
+    "29": "A 3D animation of A happy hedgehog wearing a small collar.",
+    "30": "A 3D animation of A happy hedgehog in a cozy nest.",
+    "31": "A 3D animation of A happy hedgehog wearing a flower crown.",
+    "32": "A hyper-realistic digital painting of A Palomino horse with a golden coat and a flowing, white mane and tail in a stable.",
+    "33": "A hyper-realistic digital painting of A Palomino horse with a golden coat and a flowing, white mane and tail in a snowy field.",
+    "34": "A hyper-realistic digital painting of A Palomino horse with a golden coat and a flowing, white mane and tail jumping over a hurdle.",
+    "35": "A hyper-realistic digital painting of A Palomino horse with a golden coat and a flowing, white mane and tail in a busy street.",
+    "36": "A magical artwork of A unicorn with a gleaming silver horn drinking from a crystalline stream.",
+    "37": "A magical artwork of A unicorn with a gleaming silver horn among the clouds at dawn.",
+    "38": "A magical artwork of A unicorn with a gleaming silver horn resting in the shadow of ancient ruins.",
+    "39": "A magical artwork of A unicorn with a gleaming silver horn standing in a meadow of blooming flowers.",
+    "40": "A whimsical painting of A delicate fairy with translucent wings playing with fireflies at dusk.",
+    "41": "A whimsical painting of A delicate fairy with translucent wings dancing on the petals of a giant flower.",
+    "42": "A whimsical painting of A delicate fairy with translucent wings sitting on a mushroom in a magical forest.",
+    "43": "A whimsical painting of A delicate fairy with translucent wings spreading fairy dust over a sleeping village.",
+    "44": "An adventurous illustration of A powerful centaur with a bow under a sky filled with storm clouds.",
+    "45": "An adventurous illustration of A powerful centaur with a bow patrolling the edge of a dense forest",
+    "46": "An adventurous illustration of A powerful centaur with a bow leading a group of warriors through a mountain pass.",
+    "47": "An adventurous illustration of A powerful centaur with a bow beside a river under a twilight sky",
+    "48": "A quirky artwork of A mischievous goblin with sharp features hiding in the shadows of a narrow alleyway.",
+    "49": "A quirky artwork of A mischievous goblin with sharp features climbing the walls of a deserted castle.",
+    "50": "A quirky artwork of A mischievous goblin with sharp features playing tricks on travelers in a village.",
+    "51": "A quirky artwork of A mischievous goblin with sharp features scurrying through a dense forest at twilight.",
+    "52": "A charming sketch of A friendly gnome working in a hidden underground garden.",
+    "53": "A charming sketch of A friendly gnome traveling with a mushroom cart.",
+    "54": "A charming sketch of A friendly gnome sitting by a cozy fireplace with a pipe.",
+    "55": " A charming sketch of A friendly gnome tending to the plants in a forest.",
+    "56": "A fiery illustration of A majestic phoenix spreading its wings over a burning city",
+    "57": "A fiery illustration of A majestic phoenix rising from the ashes in a burst of fire.",
+    "58": "A fiery illustration of A majestic phoenix flying through a fiery sky.",
+    "59": "A fiery illustration of A majestic phoenix appearing in a flash of flame.",
+    "60": "A dark drawing of A mysterious witch brewing a potion in a bubbling cauldron.",
+    "61": "A dark drawing of A mysterious witch reading spells in an ancient book.",
+    "62": "A dark drawing of A mysterious witch preparing a magical brew in a forest.",
+    "63": "A dark drawing of A mysterious witch cursing a lost traveler in the woods.",
+    "64": "A gritty fantasy artwork of A stout dwarf with a long beard carrying a heavy battleaxe.",
+    "65": "A gritty fantasy artwork of A stout dwarf with a long beard drinking from a golden goblet.",
+    "66": "A gritty fantasy artwork of A stout dwarf with a long beard standing guard by a stone door.",
+    "67": "A gritty fantasy artwork of A stout dwarf with a long beard forging weapons in a fiery forge.",
+    "68": " A fresh and vibrant painting of A garden-fresh salad full of color garnished with sliced avocado.",
+    "69": "A fresh and vibrant painting of A garden-fresh salad full of color paired with a crusty bread roll.",
+    "70": "A fresh and vibrant painting of A garden-fresh salad full of color served in a wooden bowl.",
+    "71": "A fresh and vibrant painting of A garden-fresh salad full of color tossed with fresh greens and vegetables.",
+    "72": "A stylish scene of A barber with clippers shaving a client with a razor.",
+    "73": "A stylish scene of A barber with clippers cutting hair in a barbershop.",
+    "74": "A stylish scene of A barber with clippers styling a client's hair.",
+    "75": "A stylish scene of A barber with clippers trimming a beard with scissors.",
+    "76": "A pixel art depiction of An elderly gentleman with distinguished gray hair, a neatly trimmed mustache, and gentle blue eyes at a vintage car show.",
+    "77": "A pixel art depiction of An elderly gentleman with distinguished gray hair, a neatly trimmed mustache, and gentle blue eyes discussing art at a gallery.",
+    "78": "A pixel art depiction of An elderly gentleman with distinguished gray hair, a neatly trimmed mustache, and gentle blue eyes on a golf course.",
+    "79": "A pixel art depiction of An elderly gentleman with distinguished gray hair, a neatly trimmed mustache, and gentle blue eyes tending to a garden.",
+    "80": "A hyper-realistic digital painting of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes on a playground.",
+    "81": "A hyper-realistic digital painting of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes shopping at a boutique.",
+    "82": "A hyper-realistic digital painting of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes in a flower garden.",
+    "83": "A hyper-realistic digital painting of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes building a sandcastle.",
+    "84": "A hyper-realistic digital painting of A teenage boy with short, spiky black hair, a slight build, and dark brown eyes dressed as an astronaut.",
+    "85": "A hyper-realistic digital painting of A teenage boy with short, spiky black hair, a slight build, and dark brown eyes at an urban skatepark.",
+    "86": "A hyper-realistic digital painting of A teenage boy with short, spiky black hair, a slight build, and dark brown eyes digging with a trowel.",
+    "87": "A hyper-realistic digital painting of A teenage boy with short, spiky black hair, a slight build, and dark brown eyes climbing a tree.",
+    "88": "A pixel art depiction of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes practicing yoga.",
+    "89": "A pixel art depiction of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes wearing a birthday party hat",
+    "90": "A pixel art depiction of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes in a flower garden",
+    "91": "A pixel art depiction of a 16 years old girl with wavy chestnut hair, a slender frame, and soft brown eyes in a medieval castle courtyard",
+    "92": "A photo of A sticker of a fluffy white cloud placed on a phone case.",
+    "93": "A photo of A sticker of a fluffy white cloud on a birthday card",
+    "94": "A photo of A sticker of a fluffy white cloud floating on a postcard",
+    "95": "A photo of A sticker of a fluffy white cloud decorating a nursery wall.",
+    "96": "A vibrant oil painting of A cheerful sunflower surrounded by bees on a hot day.",
+    "97": "A vibrant oil painting of A cheerful sunflower blooming in a garden patch.",
+    "98": "A vibrant oil painting of A cheerful sunflower stretching toward the midday sun.",
+    "99": "A vibrant oil painting of A cheerful sunflower in a farmer's field",
+    "100": "A realist landscape painting of A mighty oak tree with spreading branches blanketed in fresh snow.",
+    "101": "A realist landscape painting of A mighty oak tree with spreading branches tall in an autumn forest.",
+    "102": "A realist landscape painting of A mighty oak tree with spreading branches casting shadows at sunset.",
+    "103": "A realist landscape painting of A mighty oak tree with spreading branches against rolling hills.",
+    "104": "A soft watercolor of A delicate butterfly fluttering around a lavender bush.",
+    "105": "A soft watercolor of A delicate butterfly on the edge of a garden gate.",
+    "106": "A soft watercolor of A delicate butterfly dancing in the spring breeze.",
+    "107": "A soft watercolor of A delicate butterfly resting on a vibrant daisy.",
+    "108": "A cheerful watercolor of A white daisy flower with dew drops at dawn.",
+    "109": "A cheerful watercolor of A white daisy flower in a vase on a windowsill.",
+    "110": " A cheerful watercolor of A white daisy flower nestled in a grassy field.",
+    "111": "A cheerful watercolor of A white daisy flower swaying in a gentle breeze.",
+    "112": "A charming watercolor of A tiny hedgehog hiding in a hollow log.",
+    "113": "A charming watercolor of A tiny hedgehog sniffing among fallen leaves.",
+    "114": " A charming watercolor of A tiny hedgehog curled up in the grass.",
+    "115": "A charming watercolor of A tiny hedgehog beside a blooming flower.",
+    "116": "A mysterious oil painting of A jet-black raven silhouetted against the moon.",
+    "117": "A mysterious oil painting of A jet-black raven perched on a barren branch.",
+    "118": "A mysterious oil painting of A jet-black raven standing on a rocky outcrop.",
+    "119": "A mysterious oil painting of A jet-black raven gliding over a misty valley.",
+    }
+  
+  const totalPrompts = 120;
+  const promptsPerSet = 4; // each comparison set includes 4 prompts
+  const totalSets = Math.floor(totalPrompts / promptsPerSet); // 30 sets
+  const selectedSetCount = 25; // sample 25 sets
+  const numModels = 5;
+  const imagesPerPrompt = 1;
+  const imageCopiesPerModel = 4;
 
-  const prompts = Array.from({ length: numPrompts }, (_, i) => `Prompt ${i + 1}: Describe the scene or object here.`);
+  const allPromptIds = Array.from({ length: totalSets }, (_, i) => i * promptsPerSet);
+  const selectedPromptStartIds = shuffle(allPromptIds).slice(0, selectedSetCount);
+
+//   let promptsData = {};
+
+//   // 加载 prompts.json
+//   fetch('prompts.json')
+//   .then(response => response.json())
+//   .then(data => {
+//     console.log("✅ Loaded prompts:", data); // 👈 打印数据看看是否成功
+//     promptsData = data;
+//     render(); // 确保只有数据加载成功后才渲染
+//   })
+//   .catch(error => {
+//     console.error("❌ Failed to load prompts.json:", error);
+//   });
+
   const results = {};
   const modelShuffleMap = {};
 
-  function shuffle(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
+  function shuffle(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+      [copy[i], copy[j]] = [copy[j], copy[i]];
     }
-    return arr;
+    return copy;
   }
+
+   function getPromptText(promptId) {
+    return `Prompt ${promptId}: ${promptDict[promptId] || "[Prompt not found]"}`;
+  }
+
+//   function getPromptText(promptId) {
+//   const key = String(promptId); // 强制转换为字符串
+//   if (promptsData && promptsData.hasOwnProperty(key)) {
+//     return `Prompt ${key}: ${promptsData[key]}`;
+//   } else {
+//     return `Prompt ${key}: [Prompt not found]`;
+//   }
+//   }
 
   function render() {
     const container = document.getElementById("evaluation-area");
 
-    prompts.forEach((promptText, pIdx) => {
+    selectedPromptStartIds.forEach((startPromptId, groupIdx) => {
+      const promptIds = Array.from({ length: promptsPerSet }, (_, i) => startPromptId + i);
+      const promptTexts = promptIds.map(getPromptText);
+
       const section = document.createElement("div");
       section.className = "prompt-section";
 
-      const pTitle = document.createElement("div");
-      pTitle.className = "prompt-text";
-      pTitle.textContent = promptText;
-      section.appendChild(pTitle);
+      const title = document.createElement("div");
+      title.className = "prompt-text";
+      title.textContent = `Prompt group ${groupIdx + 1} (prompts ${startPromptId}–${startPromptId + promptsPerSet - 1})`;
+      section.appendChild(title);
 
-      const shuffledModels = shuffle([...Array(numModels).keys()]);
-      modelShuffleMap[`prompt_${pIdx}`] = shuffledModels;
+      const shuffledModelIds = shuffle([...Array(numModels).keys()]);
+      modelShuffleMap[`group_${groupIdx}`] = shuffledModelIds;
 
-      shuffledModels.forEach((modelId) => {
-        const modelBlock = document.createElement("div");
-        modelBlock.className = "model-block";
+      shuffledModelIds.forEach((modelId, modelIdx) => {
+        const optionBlock = document.createElement("div");
+        optionBlock.className = "option-block";
 
-        const modelLabel = document.createElement("div");
-        modelLabel.className = "model-label";
-        modelLabel.textContent = `Model ${modelId}`;
-        modelBlock.appendChild(modelLabel);
+        const optionLabel = document.createElement("div");
+        optionLabel.className = "option-label";
+        optionLabel.textContent = `Option ${String.fromCharCode(65 + modelIdx)}:`;
+        optionBlock.appendChild(optionLabel);
 
         const imageRow = document.createElement("div");
         imageRow.className = "image-row";
 
-        for (let i = 0; i < imagesPerModel; i++) {
+        promptIds.forEach((promptId, promptIdx,) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "img-wrapper";
+
+          const promptLabel = document.createElement("div");
+          promptLabel.textContent = getPromptText(promptId);
+
           const img = document.createElement("img");
-          img.src = `images/prompt_${pIdx}_model_${modelId}_${i}.jpg`;
-          img.alt = `Prompt ${pIdx} - Model ${modelId} - Image ${i}`;
-          imageRow.appendChild(img);
-        }
+          let subjectId = Math.floor( promptId/ 4);
+          img.src = `images/model_${modelId}_prompt_${promptId}_${subjectId}.jpg`;
+          img.alt = `Model ${modelId}, Prompt ${promptId}`;
 
-        modelBlock.appendChild(imageRow);
-        section.appendChild(modelBlock);
-      });
-
-      // Single best model selection per prompt
-      const label = document.createElement("div");
-      label.textContent = "Which model performed best overall for this prompt?";
-      label.style.marginTop = "5px";
-
-      const radios = document.createElement("div");
-      radios.className = "radio-group";
-
-      shuffledModels.forEach((modelId) => {
-        const input = document.createElement("input");
-        input.type = "radio";
-        input.name = `prompt_${pIdx}_overall`;
-        input.value = modelId;
-        input.addEventListener("change", () => {
-          results[`prompt_${pIdx}`] = modelId;
+          wrapper.appendChild(promptLabel);
+          wrapper.appendChild(img);
+          imageRow.appendChild(wrapper);
         });
 
-        radios.appendChild(input);
-        radios.appendChild(document.createTextNode(` Model ${modelId} `));
+        optionBlock.appendChild(imageRow);
+        section.appendChild(optionBlock);
       });
 
-      section.appendChild(label);
-      section.appendChild(radios);
+      const radioGroup = document.createElement("div");
+      radioGroup.className = "radio-group";
+
+      shuffledModelIds.forEach((modelId, modelIdx) => {
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `group_${groupIdx}_choice`;
+        input.value = modelId;
+        input.id = `group_${groupIdx}_option_${modelIdx}`;
+
+        input.addEventListener("change", () => {
+          results[`group_${groupIdx}`] = modelId;
+        });
+
+        const label = document.createElement("label");
+        label.htmlFor = input.id;
+        label.style.marginRight = "20px";
+        label.textContent = `Option ${String.fromCharCode(65 + modelIdx)}`;
+
+        radioGroup.appendChild(input);
+        radioGroup.appendChild(label);
+      });
+
+      section.appendChild(radioGroup);
       container.appendChild(section);
     });
   }
 
   function submitResults() {
-    const fullResult = {
-      timestamp: new Date().toISOString(),
-      responses: results,
-      model_order: modelShuffleMap,
-    };
+  const resultBox = document.getElementById("result-box");
+  const entries = [];
 
-    document.getElementById("result-box").textContent = JSON.stringify(fullResult, null, 2);
+  selectedPromptStartIds.forEach((_, groupIdx) => {
+    const radios = document.querySelectorAll(`input[name="group_${groupIdx}"]:checked`);
+    if (radios.length > 0) {
+      const selected = radios[0].value;
+      entries.push({ groupId: groupIdx, selectedOption: selected });
+    }
+  });
 
-    // Send to Google Apps Script
-    fetch("YOUR_GOOGLE_SCRIPT_URL_HERE", {
-      method: "POST",
-      body: JSON.stringify(fullResult),
-      headers: {
-        "Content-Type": "application/json"
-      }
+  const payload = { entries };
+
+  resultBox.textContent = "Submitting...";
+
+  fetch("https://script.google.com/macros/s/AKfycbxXdWM3jBE31ksJ0Ikzt59GEixh0euV53sXLbt4nbg/dev", { // 用你的URL替换
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => response.text())
+    .then(data => {
+      resultBox.textContent = "✅ Submitted Successfully:\n" + JSON.stringify(entries, null, 2);
     })
-    .then(res => res.text())
-    .then(res => {
-      alert("Thank you! Your evaluation was successfully submitted.");
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Error submitting. Please try again.");
+    .catch(error => {
+      console.error("❌ Submission failed:", error);
+      resultBox.textContent = "❌ Submission failed:\n" + error;
     });
-  }
+}
 
   render();
 </script>
